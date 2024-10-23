@@ -3,6 +3,7 @@ const paintButton = document.getElementById('paintButton');
 const eraserButton = document.getElementById('eraserButton');
 const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
+const saveButton = document.getElementById('saveButton');
 
 let erasing = false;
 let currentColor = colorPicker.value;
@@ -26,6 +27,14 @@ colorPicker.addEventListener('input', (e) => {
 
 brushSize.addEventListener('input', (e) => {
     currentSize = e.target.value;
+});
+
+saveButton.addEventListener('click', () => {
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = 'canvas.png';
+    link.click();
 });
 
 function draw(e) {
