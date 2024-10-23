@@ -120,6 +120,14 @@ canvas.addEventListener('mousemove', (e) => {
 window.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'z') {
         undo();
+    } else if (e.key === 'b' || e.key === 'B') {
+        erasing = false;
+        paintButton.classList.add('selected');
+        eraserButton.classList.remove('selected');
+    } else if (e.key === 'e' || e.key === 'E') {
+        erasing = true;
+        eraserButton.classList.add('selected');
+        paintButton.classList.remove('selected');
     }
 });
 

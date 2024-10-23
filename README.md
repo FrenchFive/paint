@@ -36,3 +36,16 @@ Select your brush and color.
 <br>Start drawing on the canvas.
 <br>Use the eraser tool to remove any mistakes.
 <br>When you're done, save your artwork!
+
+## ⌨️ Keyboard Shortcuts
+
+Here are some handy keyboard shortcuts to enhance your painting experience:
+
+| Shortcut        | Action                             |
+|------------------|------------------------------------|
+| `Ctrl + Z`       | Undo the last action               |
+| `Ctrl + S`       | Save your artwork                  |
+| `B`              | Select Brush Tool                  |
+| `E`              | Select Eraser Tool                 |
+
+Feel free to customize these shortcuts as needed!
