@@ -65,10 +65,20 @@ let lastY = 0;
 const undoStack = [];
 
 function resizeCanvas() {
+    // Save the current drawing
+    const dataUrl = canvas.toDataURL();
+    // Resize the canvas
     canvas.width = canvas.parentElement.clientWidth;
     canvas.height = canvas.parentElement.clientHeight;
     previewCanvas.width = canvas.width;
     previewCanvas.height = canvas.height;
+
+    // Redraw the saved drawing
+    const img = new Image();
+    img.src = dataUrl;
+    img.onload = () => {
+        ctx.drawImage(img, 0, 0);
+    };
 }
 
 function startPosition(e) {
