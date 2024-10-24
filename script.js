@@ -9,24 +9,44 @@ let erasing = false;
 let currentColor = colorPicker.value;
 let currentSize = brushSize.value;
 
+function updateCursor() {
+    const cursorCanvas = document.createElement('canvas');
+    const cursorCtx = cursorCanvas.getContext('2d');
+    const size = parseInt(currentSize, 10);
+    cursorCanvas.width = size * 2;
+    cursorCanvas.height = size * 2;
+
+    cursorCtx.beginPath();
+    cursorCtx.arc(size, size, size, 0, Math.PI * 2);
+    cursorCtx.fillStyle = erasing ? 'white' : currentColor;
+    cursorCtx.fill();
+
+    const dataUrl = cursorCanvas.toDataURL('image/png');
+    canvas.style.cursor = `url(${dataUrl}) ${size} ${size}, auto`;
+}
+
 paintButton.addEventListener('click', () => {
     erasing = false;
     paintButton.classList.add('selected');
     eraserButton.classList.remove('selected');
+    updateCursor();
 });
 
 eraserButton.addEventListener('click', () => {
     erasing = true;
     eraserButton.classList.add('selected');
     paintButton.classList.remove('selected');
+    updateCursor();
 });
 
 colorPicker.addEventListener('input', (e) => {
     currentColor = e.target.value;
+    updateCursor();
 });
 
 brushSize.addEventListener('input', (e) => {
     currentSize = e.target.value;
+    updateCursor();
 });
 
 saveButton.addEventListener('click', () => {
@@ -124,6 +144,7 @@ canvas.addEventListener('mouseup', endPosition);
 canvas.addEventListener('mousemove', (e) => {
     drawWithAnimationFrame(e);
     drawBrushPreview(e);
+    updateCursor();
 });
 
 window.addEventListener('keydown', (e) => {
@@ -142,3 +163,4 @@ window.addEventListener('keydown', (e) => {
 
 resizeCanvas();
 saveState();
+updateCursor();

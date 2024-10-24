@@ -11,6 +11,10 @@ html, body {
     height: 100%;
 }
 
+#paintCanvas {
+    cursor: none; /* Hide the default cursor */
+}
+
 #controls {
     display: flex;
     justify-content: space-around;
