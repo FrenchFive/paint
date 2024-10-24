@@ -12,7 +12,7 @@ let currentSize = brushSize.value;
 function updateCursor() {
     const cursorCanvas = document.createElement('canvas');
     const cursorCtx = cursorCanvas.getContext('2d');
-    const size = parseInt(currentSize, 10);
+    const size = parseInt(currentSize, 10)/2;
     cursorCanvas.width = size * 2;
     cursorCanvas.height = size * 2;
 
@@ -158,6 +158,9 @@ window.addEventListener('keydown', (e) => {
         erasing = true;
         eraserButton.classList.add('selected');
         paintButton.classList.remove('selected');
+    } else if (e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        saveButton.click();
     }
 });
 
