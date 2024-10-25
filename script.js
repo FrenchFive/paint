@@ -4,6 +4,13 @@ const eraserButton = document.getElementById('eraserButton');
 const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const saveButton = document.getElementById('saveButton');
+const importButton = document.getElementById('importButton');
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = 'image/*';
+fileInput.style.display = 'none';
+document.body.appendChild(fileInput);
+
 
 let erasing = false;
 let currentColor = colorPicker.value;
@@ -55,6 +62,26 @@ saveButton.addEventListener('click', () => {
     link.href = dataUrl;
     link.download = 'canvas.png';
     link.click();
+});
+
+importButton.addEventListener('click', () => {
+    fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw the image as background
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 });
 
 function draw(e) {
