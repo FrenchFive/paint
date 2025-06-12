@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import time
 import webbrowser
@@ -6,6 +7,10 @@ import ctypes
 from ctypes import wintypes
 
 from PIL import ImageGrab
+
+if os.name != 'nt':
+    print('snip_to_paint.py only works on Windows.')
+    sys.exit(1)
 
 PAINT_FILE = os.path.abspath('index.html')
 

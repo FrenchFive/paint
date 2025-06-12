@@ -85,7 +85,7 @@ Feel free to customize these shortcuts as needed!
 The `snip_to_paint.py` script listens for the **Win+Shift+S** shortcut. When triggered it launches the Windows snipping UI, waits for an image to appear on the clipboard, and then opens the paint page in your default browser. The captured image is automatically pasted onto the canvas.
 
 > **Note**
-> This helper only works on Windows where the `ms-screenclip:` protocol is available.
+> This helper only works on Windows where the `ms-screenclip:` protocol is available. On other operating systems the script prints a warning and exits.
 
 ### Setup
 
