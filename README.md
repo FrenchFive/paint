@@ -8,6 +8,7 @@ Welcome to my Paint project!
 
 ## 🛠️ Features
 - Brush Tools: Choose the size to create your masterpiece! ✍️
+- Brush defaults to the second size step for quick access.
 - Size slider uses 10 steps and the eraser defaults to twice the brush size.
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Remove paint strokes without affecting imported images. ❌

@@ -106,20 +106,32 @@ function resizeCanvas() {
 }
 
 function saveState() {
-    undoStack.push(getSnapshot().toDataURL());
+    undoStack.push({
+        width: bgCanvas.width,
+        height: bgCanvas.height,
+        bg: bgCanvas.toDataURL(),
+        draw: drawCanvas.toDataURL()
+    });
 }
 
 function undo() {
     if (undoStack.length === 0) return;
-    const lastState = undoStack.pop();
-    const img = new Image();
-    img.src = lastState;
-    img.onload = () => {
-        bgCtx.fillStyle = bgColor;
-        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-        bgCtx.drawImage(img, 0, 0);
+    const state = undoStack.pop();
+    setCanvasSize(state.width, state.height);
+    const bgImg = new Image();
+    const drawImg = new Image();
+    let loaded = 0;
+    const done = () => {
+        if (++loaded < 2) return;
+        bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+        bgCtx.drawImage(bgImg, 0, 0);
         drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        drawCtx.drawImage(drawImg, 0, 0);
     };
+    bgImg.onload = done;
+    drawImg.onload = done;
+    bgImg.src = state.bg;
+    drawImg.src = state.draw;
 }
 
 function getSnapshot() {
@@ -261,6 +273,14 @@ function resizeMove(e) {
     const max = maxCanvasSize();
     newW = Math.max(50, Math.min(max.width, newW));
     newH = Math.max(50, Math.min(max.height, newH));
+
+    const margin = 10;
+    const controlsHeight = document.getElementById('controls').offsetHeight;
+    const maxLeft = window.innerWidth - margin - newW;
+    const maxTop = window.innerHeight - margin - newH;
+    left = Math.min(Math.max(left, margin), maxLeft);
+    top = Math.min(Math.max(top, controlsHeight + margin), maxTop);
+
     resizeCanvasTo(newW, newH, offsetX, offsetY, resizing.snapshot);
     const container = bgCanvas.parentElement;
     container.style.left = left + 'px';
