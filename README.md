@@ -11,6 +11,7 @@ Welcome to my Paint project!
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Easily erase any mistakes or unwanted lines. ❌
 - Smooth brush rendering for better performance.
+- Clear Canvas button to start fresh anytime.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
 
 ## 📦 Installation

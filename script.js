@@ -5,6 +5,7 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const saveButton = document.getElementById('saveButton');
 const importButton = document.getElementById('importButton');
+const clearButton = document.getElementById('clearButton');
 const brushPreview = document.getElementById('brushPreview');
 
 const fileInput = document.createElement('input');
@@ -20,8 +21,8 @@ let painting = false;
 let erasing = false;
 let currentColor = colorPicker.value;
 let currentSize = parseInt(brushSize.value, 10);
-let lastX = 0;
-let lastY = 0;
+let lastPoint = null;
+let lastMidPoint = null;
 const undoStack = [];
 
 function updatePreview() {
@@ -61,19 +62,24 @@ function undo() {
     };
 }
 
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
 function startPaint(e) {
     painting = true;
-    const rect = canvas.getBoundingClientRect();
-    lastX = e.clientX - rect.left;
-    lastY = e.clientY - rect.top;
-    draw(e);
+    lastPoint = getPos(e);
+    lastMidPoint = lastPoint;
 }
 
 function draw(e) {
     if (!painting) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const point = getPos(e);
+    const midPoint = {
+        x: (lastPoint.x + point.x) / 2,
+        y: (lastPoint.y + point.y) / 2
+    };
 
     ctx.lineWidth = currentSize;
     ctx.lineCap = 'round';
@@ -81,17 +87,21 @@ function draw(e) {
     ctx.strokeStyle = erasing ? '#ffffff' : currentColor;
 
     ctx.beginPath();
-    ctx.moveTo(lastX, lastY);
-    ctx.lineTo(x, y);
+    ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
+    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, midPoint.x, midPoint.y);
     ctx.stroke();
 
-    lastX = x;
-    lastY = y;
+    lastPoint = point;
+    lastMidPoint = midPoint;
 }
 
 function endPaint() {
     if (!painting) return;
     painting = false;
+    ctx.beginPath();
+    ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
+    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, lastPoint.x, lastPoint.y);
+    ctx.stroke();
     saveState();
 }
 
@@ -127,6 +137,11 @@ saveButton.addEventListener('click', () => {
 });
 
 importButton.addEventListener('click', () => fileInput.click());
+
+clearButton.addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    saveState();
+});
 
 fileInput.addEventListener('change', e => {
     const file = e.target.files[0];
