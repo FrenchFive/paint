@@ -9,7 +9,7 @@ Welcome to my Paint project!
 ## 🛠️ Features
 - Brush Tools: Choose the size to create your masterpiece! ✍️
 - Color Palette: Pick your favorite colors 🌈
-- Eraser Tool: Easily erase any mistakes or unwanted lines. ❌
+- Eraser Tool: Remove paint strokes without affecting imported images. ❌
 - Smooth brush rendering for better performance.
 - Clear Canvas button to start fresh anytime.
 - Save Your Artwork: Download your creations as images to share with friends. 💾

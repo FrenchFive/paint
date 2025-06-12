@@ -16,8 +16,10 @@ fileInput.accept = 'image/*';
 fileInput.style.display = 'none';
 document.body.appendChild(fileInput);
 
-const canvas = document.getElementById('paintCanvas');
-const ctx = canvas.getContext('2d');
+const bgCanvas = document.getElementById('bgCanvas');
+const drawCanvas = document.getElementById('drawCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+const drawCtx = drawCanvas.getContext('2d');
 
 let painting = false;
 let erasing = false;
@@ -32,13 +34,17 @@ function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
         themeToggle.checked = true;
-        canvas.style.backgroundColor = "#333333"; bgColor = "#333333";
+        bgCanvas.style.backgroundColor = "#333333"; bgColor = "#333333";
+        bgCtx.fillStyle = bgColor;
+        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         currentColor = '#ffffff';
         colorPicker.value = '#ffffff';
     } else {
         document.body.classList.remove('dark');
         themeToggle.checked = false;
-        canvas.style.backgroundColor = "#ffffff"; bgColor = "#ffffff";
+        bgCanvas.style.backgroundColor = "#ffffff"; bgColor = "#ffffff";
+        bgCtx.fillStyle = bgColor;
+        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         currentColor = '#000000';
         colorPicker.value = '#000000';
     }
@@ -53,27 +59,28 @@ function updatePreview() {
 }
 
 function movePreview(e) {
-    const rect = canvas.getBoundingClientRect();
+    const rect = drawCanvas.getBoundingClientRect();
     brushPreview.style.left = `${e.clientX - rect.left}px`;
     brushPreview.style.top = `${e.clientY - rect.top}px`;
 }
 
 function resizeCanvas() {
-    const dataUrl = canvas.toDataURL();
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width;
-    canvas.height = rect.height;
+    const snapshot = getSnapshot().toDataURL();
+    const rect = bgCanvas.parentElement.getBoundingClientRect();
+    bgCanvas.width = drawCanvas.width = rect.width;
+    bgCanvas.height = drawCanvas.height = rect.height;
     const img = new Image();
-    img.src = dataUrl;
+    img.src = snapshot;
     img.onload = () => {
-        ctx.fillStyle = bgColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
+        bgCtx.fillStyle = bgColor;
+        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        bgCtx.drawImage(img, 0, 0);
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     };
 }
 
 function saveState() {
-    undoStack.push(canvas.toDataURL());
+    undoStack.push(getSnapshot().toDataURL());
 }
 
 function undo() {
@@ -82,22 +89,27 @@ function undo() {
     const img = new Image();
     img.src = lastState;
     img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0);
+        bgCtx.fillStyle = bgColor;
+        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        bgCtx.drawImage(img, 0, 0);
+        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     };
 }
 
-function withBackground(callback) {
+function getSnapshot() {
     const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = canvas.width;
-    exportCanvas.height = canvas.height;
+    exportCanvas.width = bgCanvas.width;
+    exportCanvas.height = bgCanvas.height;
     const exportCtx = exportCanvas.getContext('2d');
     exportCtx.fillStyle = bgColor;
     exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-    exportCtx.drawImage(canvas, 0, 0);
-    callback(exportCanvas);
+    exportCtx.drawImage(bgCanvas, 0, 0);
+    exportCtx.drawImage(drawCanvas, 0, 0);
+    return exportCanvas;
+}
+
+function withBackground(callback) {
+    callback(getSnapshot());
 }
 
 function copyCanvas() {
@@ -112,18 +124,18 @@ function copyCanvas() {
 }
 
 function drawImageFit(img) {
-    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+    const scale = Math.min(bgCanvas.width / img.width, bgCanvas.height / img.height);
     const w = img.width * scale;
     const h = img.height * scale;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, w, h);
+    bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+    bgCtx.fillStyle = bgColor;
+    bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+    bgCtx.drawImage(img, 0, 0, w, h);
     saveState();
 }
 
 function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
+    const rect = drawCanvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
 }
 
@@ -141,15 +153,21 @@ function draw(e) {
         y: (lastPoint.y + point.y) / 2
     };
 
-    ctx.lineWidth = currentSize;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.strokeStyle = erasing ? bgColor : currentColor;
+    drawCtx.lineWidth = currentSize;
+    drawCtx.lineCap = 'round';
+    drawCtx.lineJoin = 'round';
+    if (erasing) {
+        drawCtx.globalCompositeOperation = 'destination-out';
+        drawCtx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+        drawCtx.globalCompositeOperation = 'source-over';
+        drawCtx.strokeStyle = currentColor;
+    }
 
-    ctx.beginPath();
-    ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
-    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, midPoint.x, midPoint.y);
-    ctx.stroke();
+    drawCtx.beginPath();
+    drawCtx.moveTo(lastMidPoint.x, lastMidPoint.y);
+    drawCtx.quadraticCurveTo(lastPoint.x, lastPoint.y, midPoint.x, midPoint.y);
+    drawCtx.stroke();
 
     lastPoint = point;
     lastMidPoint = midPoint;
@@ -158,10 +176,10 @@ function draw(e) {
 function endPaint() {
     if (!painting) return;
     painting = false;
-    ctx.beginPath();
-    ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
-    ctx.quadraticCurveTo(lastPoint.x, lastPoint.y, lastPoint.x, lastPoint.y);
-    ctx.stroke();
+    drawCtx.beginPath();
+    drawCtx.moveTo(lastMidPoint.x, lastMidPoint.y);
+    drawCtx.quadraticCurveTo(lastPoint.x, lastPoint.y, lastPoint.x, lastPoint.y);
+    drawCtx.stroke();
     saveState();
 }
 
@@ -207,9 +225,9 @@ themeToggle.addEventListener('change', e => {
 });
 
 clearButton.addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    bgCtx.fillStyle = bgColor;
+    bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+    drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
     saveState();
 });
 
@@ -243,15 +261,15 @@ window.addEventListener('paste', e => {
     }
 });
 
-canvas.addEventListener('pointerdown', e => {
+drawCanvas.addEventListener('pointerdown', e => {
     startPaint(e);
-    canvas.setPointerCapture(e.pointerId);
+    drawCanvas.setPointerCapture(e.pointerId);
     movePreview(e);
 });
-canvas.addEventListener('pointermove', e => { draw(e); movePreview(e); });
-canvas.addEventListener('pointerup', e => {
+drawCanvas.addEventListener('pointermove', e => { draw(e); movePreview(e); });
+drawCanvas.addEventListener('pointerup', e => {
     endPaint();
-    canvas.releasePointerCapture(e.pointerId);
+    drawCanvas.releasePointerCapture(e.pointerId);
 });
 window.addEventListener('resize', resizeCanvas);
 
@@ -279,8 +297,9 @@ window.addEventListener('keydown', e => {
 
 applyTheme(localStorage.getItem('darkMode') === 'true');
 resizeCanvas();
-ctx.fillStyle = bgColor;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+bgCtx.fillStyle = bgColor;
+bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 saveState();
 updatePreview();
 
