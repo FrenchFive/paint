@@ -1,6 +1,7 @@
 // Improved paint application
 const paintButton = document.getElementById('paintButton');
 const eraserButton = document.getElementById('eraserButton');
+const bucketButton = document.getElementById('bucketButton');
 const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const saveButton = document.getElementById('saveButton');
@@ -13,6 +14,15 @@ const handleNW = document.getElementById('handleNW');
 const handleSE = document.getElementById('handleSE');
 const brushPreview = document.getElementById('brushPreview');
 const themeToggle = document.getElementById('themeToggle');
+
+function selectTool(name) {
+    tool = name;
+    erasing = name === 'erase';
+    paintButton.classList.toggle('selected', name === 'paint');
+    eraserButton.classList.toggle('selected', name === 'erase');
+    bucketButton.classList.toggle('selected', name === 'bucket');
+    updatePreview();
+}
 
 const lightBg = '#ffffff';
 const darkBg = '#333333';
@@ -29,6 +39,7 @@ const bgCtx = bgCanvas.getContext('2d');
 const drawCtx = drawCanvas.getContext('2d');
 
 let painting = false;
+let tool = 'paint';
 let erasing = false;
 let currentColor = colorPicker.value;
 let baseSize = parseInt(brushSize.value, 10);
@@ -71,6 +82,11 @@ function applyTheme(isDark) {
 }
 
 function updatePreview() {
+    if (tool === 'bucket') {
+        brushPreview.style.display = 'none';
+        return;
+    }
+    brushPreview.style.display = 'block';
     const size = erasing ? baseSize * 2 : baseSize;
     brushPreview.style.width = `${size}px`;
     brushPreview.style.height = `${size}px`;
@@ -91,6 +107,42 @@ function movePreview(e) {
     const rect = drawCanvas.getBoundingClientRect();
     brushPreview.style.left = `${e.clientX - rect.left}px`;
     brushPreview.style.top = `${e.clientY - rect.top}px`;
+}
+
+function hexToRgb(hex) {
+    hex = hex.replace('#', '');
+    if (hex.length === 3) {
+        hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    }
+    const num = parseInt(hex, 16);
+    return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+}
+
+function floodFill(ctx, x, y, color) {
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    if (x < 0 || x >= w || y < 0 || y >= h) return;
+    const img = ctx.getImageData(0, 0, w, h);
+    const data = img.data;
+    const start = (y * w + x) * 4;
+    const target = [data[start], data[start+1], data[start+2], data[start+3]];
+    const fill = hexToRgb(color);
+    if (target[0] === fill.r && target[1] === fill.g && target[2] === fill.b && target[3] === 255) return;
+    const stack = [{x,y}];
+    while (stack.length) {
+        const {x:cx, y:cy} = stack.pop();
+        let idx = (cy * w + cx) * 4;
+        if (data[idx] !== target[0] || data[idx+1] !== target[1] || data[idx+2] !== target[2] || data[idx+3] !== target[3]) continue;
+        data[idx] = fill.r;
+        data[idx+1] = fill.g;
+        data[idx+2] = fill.b;
+        data[idx+3] = 255;
+        if (cx > 0) stack.push({x: cx-1, y: cy});
+        if (cx < w-1) stack.push({x: cx+1, y: cy});
+        if (cy > 0) stack.push({x: cx, y: cy-1});
+        if (cy < h-1) stack.push({x: cx, y: cy+1});
+    }
+    ctx.putImageData(img, 0, 0);
 }
 
 function maxCanvasSize() {
@@ -325,19 +377,9 @@ function stopResize() {
     saveState();
 }
 
-paintButton.addEventListener('click', () => {
-    erasing = false;
-    paintButton.classList.add('selected');
-    eraserButton.classList.remove('selected');
-    updatePreview();
-});
-
-eraserButton.addEventListener('click', () => {
-    erasing = true;
-    eraserButton.classList.add('selected');
-    paintButton.classList.remove('selected');
-    updatePreview();
-});
+paintButton.addEventListener('click', () => selectTool('paint'));
+eraserButton.addEventListener('click', () => selectTool('erase'));
+bucketButton.addEventListener('click', () => selectTool('bucket'));
 
 colorPicker.addEventListener('input', e => {
     currentColor = e.target.value;
@@ -405,14 +447,25 @@ window.addEventListener('paste', e => {
 });
 
 drawCanvas.addEventListener('pointerdown', e => {
-    startPaint(e);
-    drawCanvas.setPointerCapture(e.pointerId);
+    if (tool === 'bucket') {
+        const pos = getPos(e);
+        floodFill(drawCtx, Math.floor(pos.x), Math.floor(pos.y), currentColor);
+        saveState();
+    } else {
+        startPaint(e);
+        drawCanvas.setPointerCapture(e.pointerId);
+        movePreview(e);
+    }
+});
+drawCanvas.addEventListener('pointermove', e => {
+    if (tool !== 'bucket') draw(e);
     movePreview(e);
 });
-drawCanvas.addEventListener('pointermove', e => { draw(e); movePreview(e); });
 drawCanvas.addEventListener('pointerup', e => {
-    endPaint();
-    drawCanvas.releasePointerCapture(e.pointerId);
+    if (tool !== 'bucket') {
+        endPaint();
+        drawCanvas.releasePointerCapture(e.pointerId);
+    }
 });
 window.addEventListener('resize', resizeCanvas);
 
@@ -445,15 +498,11 @@ window.addEventListener('keydown', e => {
         e.preventDefault();
         saveButton.click();
     } else if (e.key.toLowerCase() === 'b') {
-        erasing = false;
-        paintButton.classList.add('selected');
-        eraserButton.classList.remove('selected');
-        updatePreview();
+        selectTool('paint');
     } else if (e.key.toLowerCase() === 'e') {
-        erasing = true;
-        eraserButton.classList.add('selected');
-        paintButton.classList.remove('selected');
-        updatePreview();
+        selectTool('erase');
+    } else if (e.key.toLowerCase() === 'g') {
+        selectTool('bucket');
     } else if (e.ctrlKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
         e.stopPropagation();

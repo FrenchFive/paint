@@ -30,6 +30,7 @@ Welcome to my Paint project!
 - Tailwind CSS styling for a modern look.
 - Dark mode toggle button shows a moon in dark mode and a sun in light mode, remembering your choice.
 - Easy-to-edit color palette using CSS variables at the top of `style.css`.
+- Bucket tool fills areas with the current color (shortcut `G`).
 
 ## 📦 Installation
 
@@ -70,6 +71,7 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 | `Ctrl + (+/-)` or Wheel | Change brush/eraser size      |
 | `B`              | Select Brush Tool                  |
 | `E`              | Select Eraser Tool                 |
+| `G`              | Select Bucket Tool                 |
 
 Feel free to customize these shortcuts as needed!
 
