@@ -5,16 +5,12 @@ import webbrowser
 
 import keyboard
 import pyautogui
-import win32clipboard
-import win32con
+from PIL import ImageGrab
 
 
 def clipboard_has_image():
-    win32clipboard.OpenClipboard()
-    try:
-        return win32clipboard.IsClipboardFormatAvailable(win32con.CF_DIB)
-    finally:
-        win32clipboard.CloseClipboard()
+    """Return True if an image is available on the clipboard."""
+    return ImageGrab.grabclipboard() is not None
 
 
 PAINT_FILE = os.path.abspath('index.html')

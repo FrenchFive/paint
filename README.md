@@ -84,6 +84,9 @@ Feel free to customize these shortcuts as needed!
 
 The `snip_to_paint.py` script listens for the **Win+Shift+S** shortcut. When triggered it launches the Windows snipping UI, waits for an image to appear on the clipboard and then opens the paint page in your default browser. The captured image is automatically pasted onto the canvas.
 
+> **Note**
+> This helper only works on Windows where the `ms-screenclip:` protocol is available.
+
 ### Setup
 
 1. Create a virtual environment:
@@ -96,6 +99,9 @@ source venv/bin/activate  # On Windows use venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+
+This installs `keyboard`, `pyautogui` and `Pillow`, which the helper
+relies on for keyboard hooks, UI automation and clipboard access.
 
 ### Running
 
