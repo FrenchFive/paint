@@ -100,8 +100,7 @@ source venv/bin/activate  # On Windows use venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-This installs `keyboard`, `pyautogui` and `Pillow`, which the helper
-relies on for keyboard hooks, UI automation and clipboard access.
+This installs `pynput` and `Pillow`, which the helper uses for hotkey detection and clipboard access. No Tkinter setup is required.
 
 ### Running
 

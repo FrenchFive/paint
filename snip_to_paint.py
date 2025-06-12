@@ -3,9 +3,9 @@ import subprocess
 import time
 import webbrowser
 
-import keyboard
-import pyautogui
 from PIL import ImageGrab
+from pynput import keyboard
+from pynput.keyboard import Key, Controller
 
 
 def clipboard_has_image():
@@ -20,7 +20,10 @@ def open_paint_and_paste():
     url = 'file://' + PAINT_FILE.replace(os.sep, '/')
     webbrowser.open_new_tab(url)
     time.sleep(2)
-    pyautogui.hotkey('ctrl', 'v')
+    controller = Controller()
+    with controller.pressed(Key.ctrl):
+        controller.press('v')
+        controller.release('v')
 
 
 def on_hotkey():
@@ -31,5 +34,5 @@ def on_hotkey():
 
 
 if __name__ == '__main__':
-    keyboard.add_hotkey('win+shift+s', on_hotkey)
-    keyboard.wait()
+    with keyboard.GlobalHotKeys({'<cmd>+<shift>+s': on_hotkey}) as h:
+        h.join()
