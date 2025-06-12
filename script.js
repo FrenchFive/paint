@@ -31,7 +31,7 @@ const drawCtx = drawCanvas.getContext('2d');
 let painting = false;
 let erasing = false;
 let currentColor = colorPicker.value;
-let currentSize = parseInt(brushSize.value, 10);
+let baseSize = parseInt(brushSize.value, 10);
 let lastPoint = null;
 let lastMidPoint = null;
 let bgColor = "#ffffff";
@@ -50,7 +50,7 @@ function setCanvasSize(w, h) {
 function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
-        themeToggle.textContent = '☀️';
+        themeToggle.textContent = '🌙';
         bgCanvas.style.backgroundColor = darkBg; bgColor = darkBg;
         bgCtx.fillStyle = bgColor;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
@@ -58,7 +58,7 @@ function applyTheme(isDark) {
         colorPicker.value = '#ffffff';
     } else {
         document.body.classList.remove('dark');
-        themeToggle.textContent = '🌙';
+        themeToggle.textContent = '☀️';
         bgCanvas.style.backgroundColor = lightBg; bgColor = lightBg;
         bgCtx.fillStyle = bgColor;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
@@ -70,8 +70,9 @@ function applyTheme(isDark) {
 }
 
 function updatePreview() {
-    brushPreview.style.width = `${currentSize}px`;
-    brushPreview.style.height = `${currentSize}px`;
+    const size = erasing ? baseSize * 2 : baseSize;
+    brushPreview.style.width = `${size}px`;
+    brushPreview.style.height = `${size}px`;
     brushPreview.style.background = erasing ? bgColor : currentColor;
 }
 
@@ -181,7 +182,8 @@ function draw(e) {
         y: (lastPoint.y + point.y) / 2
     };
 
-    drawCtx.lineWidth = currentSize;
+    const size = erasing ? baseSize * 2 : baseSize;
+    drawCtx.lineWidth = size;
     drawCtx.lineCap = 'round';
     drawCtx.lineJoin = 'round';
     if (erasing) {
@@ -213,12 +215,20 @@ function endPaint() {
 
 function startResize(corner, e) {
     e.preventDefault();
+    const container = bgCanvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    container.style.position = 'absolute';
+    container.style.margin = '0';
+    container.style.left = rect.left + 'px';
+    container.style.top = rect.top + 'px';
     resizing = {
         corner,
         startX: e.clientX,
         startY: e.clientY,
         startW: bgCanvas.width,
         startH: bgCanvas.height,
+        startLeft: rect.left,
+        startTop: rect.top,
         snapshot: getSnapshot()
     };
     document.addEventListener('pointermove', resizeMove);
@@ -233,6 +243,8 @@ function resizeMove(e) {
     let newH = resizing.startH;
     let offsetX = 0;
     let offsetY = 0;
+    let left = resizing.startLeft;
+    let top = resizing.startTop;
 
     if (resizing.corner === 'se') {
         newW += dx;
@@ -242,12 +254,17 @@ function resizeMove(e) {
         newH -= dy;
         offsetX = -dx;
         offsetY = -dy;
+        left += dx;
+        top += dy;
     }
 
     const max = maxCanvasSize();
     newW = Math.max(50, Math.min(max.width, newW));
     newH = Math.max(50, Math.min(max.height, newH));
     resizeCanvasTo(newW, newH, offsetX, offsetY, resizing.snapshot);
+    const container = bgCanvas.parentElement;
+    container.style.left = left + 'px';
+    container.style.top = top + 'px';
 }
 
 function stopResize() {
@@ -255,8 +272,10 @@ function stopResize() {
     document.removeEventListener('pointermove', resizeMove);
     document.removeEventListener('pointerup', stopResize);
     const container = bgCanvas.parentElement;
-    container.style.marginTop = '10px';
-    container.style.marginLeft = '10px';
+    container.style.position = 'relative';
+    container.style.left = '';
+    container.style.top = '';
+    container.style.margin = '10px';
     resizing = null;
     saveState();
 }
@@ -281,7 +300,7 @@ colorPicker.addEventListener('input', e => {
 });
 
 brushSize.addEventListener('input', e => {
-    currentSize = parseInt(e.target.value, 10);
+    baseSize = parseInt(e.target.value, 10);
     updatePreview();
 });
 
@@ -371,7 +390,7 @@ window.addEventListener('keydown', e => {
     } else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         copyCanvas();
-    } else if (e.key.toLowerCase() === 's') {
+    } else if (e.ctrlKey && e.key.toLowerCase() === 's') {
         e.preventDefault();
         saveButton.click();
     } else if (e.key.toLowerCase() === 'b') {
@@ -386,9 +405,10 @@ window.addEventListener('keydown', e => {
         updatePreview();
     } else if (e.ctrlKey && e.key.toLowerCase() === 'n') {
         e.preventDefault();
+        e.stopPropagation();
         newButton.click();
     }
-});
+}, true);
 
 applyTheme(localStorage.getItem('darkMode') === 'true');
 resizeCanvas();

@@ -8,10 +8,12 @@ Welcome to my Paint project!
 
 ## 🛠️ Features
 - Brush Tools: Choose the size to create your masterpiece! ✍️
+- Size slider uses 10 steps and the eraser defaults to twice the brush size.
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Remove paint strokes without affecting imported images. ❌
 - Smooth brush rendering for better performance.
 - "New" option clears the canvas (Ctrl+N) via the File menu.
+- Browser shortcut for Ctrl+N is overridden so it clears the canvas instead of opening a new window.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
 - Modern interface with improved toolbar styling.
 - Continue drawing even if the cursor leaves the canvas.
@@ -21,10 +23,10 @@ Welcome to my Paint project!
 - Imported or pasted images scale to fit while keeping their aspect ratio.
 - Exports and copied images include the current background color.
 - Rounded canvas container resizes to match imported images.
-- Resize handles in the top-left and bottom-right corners crop the canvas from those sides.
+- Resize handles in the top-left and bottom-right corners crop the canvas from those sides and realign afterwards.
 - File dropdown groups Import, Export, Copy and New options.
 - Tailwind CSS styling for a modern look.
-- Dark mode toggle button shows a sun or moon icon and remembers your choice.
+- Dark mode toggle button shows a moon in dark mode and a sun in light mode, remembering your choice.
 - Easy-to-edit color palette using CSS variables at the top of `style.css`.
 
 ## 📦 Installation
