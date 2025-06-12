@@ -79,3 +79,16 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 
 Feel free to customize these shortcuts as needed!
 
+
+## 🖼️ Snip to Paint
+
+The `snip_to_paint.py` script listens for the **Win+Shift+S** shortcut. When triggered it launches the Windows snipping UI, waits for an image to appear on the clipboard and then opens the paint page in your default browser. The captured image is automatically pasted onto the canvas.
+
+### Running
+
+```bash
+pip install keyboard pyautogui pywin32
+python snip_to_paint.py
+```
+
+Leave the script running in the background. After you select a screen area, a new browser tab opens with the paint app and the screenshot is pasted.
