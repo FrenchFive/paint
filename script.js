@@ -295,6 +295,15 @@ function drawImageFit(img) {
     saveState();
 }
 
+function newCanvas(save = true) {
+    const { width, height } = maxCanvasSize();
+    setCanvasSize(width, height);
+    bgCtx.fillStyle = bgColor;
+    bgCtx.fillRect(0, 0, width, height);
+    drawCtx.clearRect(0, 0, width, height);
+    if (save) saveState();
+}
+
 function drawLineSegment(start, end) {
     const size = erasing ? baseSize * 2 : baseSize;
     drawCtx.lineWidth = size;
@@ -467,10 +476,7 @@ themeToggle.addEventListener('click', () => {
 });
 
 newButton.addEventListener('click', () => {
-    bgCtx.fillStyle = bgColor;
-    bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-    drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    saveState();
+    newCanvas();
 });
 
 fileInput.addEventListener('change', e => {
@@ -479,7 +485,10 @@ fileInput.addEventListener('change', e => {
     const reader = new FileReader();
     reader.onload = event => {
         const img = new Image();
-        img.onload = () => drawImageFit(img);
+        img.onload = () => {
+            newCanvas(false);
+            drawImageFit(img);
+        };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
@@ -494,7 +503,10 @@ window.addEventListener('paste', e => {
             const reader = new FileReader();
             reader.onload = ev => {
                 const img = new Image();
-                img.onload = () => drawImageFit(img);
+                img.onload = () => {
+                    newCanvas(false);
+                    drawImageFit(img);
+                };
                 img.src = ev.target.result;
             };
             reader.readAsDataURL(file);

@@ -15,6 +15,7 @@ Welcome to my Paint project!
 - Smooth brush rendering for better performance.
 - Undo and redo buttons with keyboard shortcuts (Ctrl+Z / Ctrl+Y).
 - "New" option clears the canvas (Ctrl+N) via the File menu.
+- New canvas resets the size to the maximum space available.
 - Browser shortcut for Ctrl+N is overridden so it clears the canvas instead of opening a new window.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
 - Modern interface with improved toolbar styling.
@@ -23,6 +24,7 @@ Welcome to my Paint project!
 - Copy your art to the clipboard with `Ctrl + C` or the Copy button.
 - Toggle Dark Mode with a persistent setting.
 - Imported or pasted images scale to fit while keeping their aspect ratio.
+- Importing or pasting starts a new canvas first so repeated images don't shrink it.
 - Exports and copied images include the current background color.
 - Rounded canvas container resizes to match imported images.
 - Resize handles in the top-left and bottom-right corners crop the canvas from those sides and realign afterwards.
