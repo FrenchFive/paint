@@ -11,6 +11,8 @@
     --selected-dark: #666666;
     --selected-border: #000000;
     --accent: #888888;
+    --button-hover-light: #e6e6e6;
+    --button-hover-dark: #555555;
 }
 
 html, body {
@@ -82,11 +84,19 @@ body.dark #controls button {
 }
 
 #controls button:hover {
-    background: #e6e6e6;
+    background: var(--button-hover-light);
 }
 
 body.dark #controls button:hover {
-    background: #555;
+    background: var(--button-hover-dark);
+}
+
+#fileMenu button:hover {
+    background: var(--button-hover-light);
+}
+
+body.dark #fileMenu button:hover {
+    background: var(--button-hover-dark);
 }
 
 #canvasContainer {

@@ -543,12 +543,15 @@ drawCanvas.addEventListener('pointerup', e => {
 window.addEventListener('resize', resizeCanvas);
 
 fileMenuButton.addEventListener('click', () => {
+    const expanded = fileMenuButton.getAttribute('aria-expanded') === 'true';
+    fileMenuButton.setAttribute('aria-expanded', (!expanded).toString());
     fileMenu.classList.toggle('hidden');
 });
 
 document.addEventListener('click', e => {
     if (!fileMenu.contains(e.target) && e.target !== fileMenuButton) {
         fileMenu.classList.add('hidden');
+        fileMenuButton.setAttribute('aria-expanded', 'false');
     }
 });
 

@@ -11,12 +11,12 @@
     <div id="main">
         <div id="controls" class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 shadow">
             <div class="relative" id="fileMenuWrapper">
-                <button id="fileMenuButton" class="px-3 py-1 bg-white dark:bg-gray-600 rounded border border-gray-300 dark:border-gray-500">File &#x25BE;</button>
-                <div id="fileMenu" class="hidden absolute left-0 mt-1 w-32 bg-white dark:bg-gray-600 rounded shadow z-10">
-                    <button id="importButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Import</button>
-                    <button id="saveButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Export</button>
-                    <button id="copyButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Copy</button>
-                    <button id="newButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">New</button>
+                <button id="fileMenuButton" class="px-3 py-1 bg-white dark:bg-gray-600 rounded border border-gray-300 dark:border-gray-500" aria-haspopup="true" aria-expanded="false" aria-controls="fileMenu">File &#x25BE;</button>
+                <div id="fileMenu" class="hidden absolute left-0 mt-1 w-32 bg-white dark:bg-gray-600 rounded shadow z-10" role="menu" aria-labelledby="fileMenuButton">
+                    <button id="importButton" class="block w-full text-left px-4 py-2" role="menuitem">Import</button>
+                    <button id="saveButton" class="block w-full text-left px-4 py-2" role="menuitem">Export</button>
+                    <button id="copyButton" class="block w-full text-left px-4 py-2" role="menuitem">Copy</button>
+                    <button id="newButton" class="block w-full text-left px-4 py-2" role="menuitem">New</button>
                 </div>
             </div>
             <button id="paintButton" class="selected px-3 py-1 rounded border" title="Brush">🖌️</button>
