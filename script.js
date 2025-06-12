@@ -82,15 +82,17 @@ function applyTheme(isDark) {
 }
 
 function updatePreview() {
-    if (tool === 'bucket') {
-        brushPreview.style.display = 'none';
-        return;
-    }
     brushPreview.style.display = 'block';
-    const size = erasing ? baseSize * 2 : baseSize;
+    let size;
+    if (tool === 'bucket') {
+        size = 8;
+        brushPreview.style.background = 'transparent';
+    } else {
+        size = erasing ? baseSize * 2 : baseSize;
+        brushPreview.style.background = erasing ? bgColor : currentColor;
+    }
     brushPreview.style.width = `${size}px`;
     brushPreview.style.height = `${size}px`;
-    brushPreview.style.background = erasing ? bgColor : currentColor;
 }
 
 function adjustBrushSize(delta) {
@@ -118,31 +120,47 @@ function hexToRgb(hex) {
     return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
 }
 
-function floodFill(ctx, x, y, color) {
+function floodFill(ctx, x, y, color, tolerance = 0) {
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
     if (x < 0 || x >= w || y < 0 || y >= h) return;
     const img = ctx.getImageData(0, 0, w, h);
     const data = img.data;
     const start = (y * w + x) * 4;
-    const target = [data[start], data[start+1], data[start+2], data[start+3]];
+    const target = {
+        r: data[start],
+        g: data[start + 1],
+        b: data[start + 2],
+        a: data[start + 3]
+    };
     const fill = hexToRgb(color);
-    if (target[0] === fill.r && target[1] === fill.g && target[2] === fill.b && target[3] === 255) return;
-    const stack = [{x,y}];
+    const diffStart = Math.abs(target.r - fill.r) + Math.abs(target.g - fill.g) + Math.abs(target.b - fill.b);
+    if (diffStart <= tolerance && target.a === 255) return;
+    const stack = [{ x, y }];
     while (stack.length) {
-        const {x:cx, y:cy} = stack.pop();
+        const { x: cx, y: cy } = stack.pop();
         let idx = (cy * w + cx) * 4;
-        if (data[idx] !== target[0] || data[idx+1] !== target[1] || data[idx+2] !== target[2] || data[idx+3] !== target[3]) continue;
+        const dr = Math.abs(data[idx] - target.r);
+        const dg = Math.abs(data[idx + 1] - target.g);
+        const db = Math.abs(data[idx + 2] - target.b);
+        if (dr + dg + db > tolerance || data[idx + 3] !== target.a) continue;
         data[idx] = fill.r;
-        data[idx+1] = fill.g;
-        data[idx+2] = fill.b;
-        data[idx+3] = 255;
-        if (cx > 0) stack.push({x: cx-1, y: cy});
-        if (cx < w-1) stack.push({x: cx+1, y: cy});
-        if (cy > 0) stack.push({x: cx, y: cy-1});
-        if (cy < h-1) stack.push({x: cx, y: cy+1});
+        data[idx + 1] = fill.g;
+        data[idx + 2] = fill.b;
+        data[idx + 3] = 255;
+        if (cx > 0) stack.push({ x: cx - 1, y: cy });
+        if (cx < w - 1) stack.push({ x: cx + 1, y: cy });
+        if (cy > 0) stack.push({ x: cx, y: cy - 1 });
+        if (cy < h - 1) stack.push({ x: cx, y: cy + 1 });
     }
     ctx.putImageData(img, 0, 0);
+}
+
+function getBucketTolerance() {
+    const min = parseInt(brushSize.min, 10);
+    const max = parseInt(brushSize.max, 10);
+    const val = parseInt(brushSize.value, 10);
+    return ((val - min) / (max - min)) * 765;
 }
 
 function maxCanvasSize() {
@@ -447,14 +465,14 @@ window.addEventListener('paste', e => {
 });
 
 drawCanvas.addEventListener('pointerdown', e => {
+    movePreview(e);
     if (tool === 'bucket') {
         const pos = getPos(e);
-        floodFill(drawCtx, Math.floor(pos.x), Math.floor(pos.y), currentColor);
+        floodFill(drawCtx, Math.floor(pos.x), Math.floor(pos.y), currentColor, getBucketTolerance());
         saveState();
     } else {
         startPaint(e);
         drawCanvas.setPointerCapture(e.pointerId);
-        movePreview(e);
     }
 });
 drawCanvas.addEventListener('pointermove', e => {

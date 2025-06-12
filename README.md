@@ -30,7 +30,7 @@ Welcome to my Paint project!
 - Tailwind CSS styling for a modern look.
 - Dark mode toggle button shows a moon in dark mode and a sun in light mode, remembering your choice.
 - Easy-to-edit color palette using CSS variables at the top of `style.css`.
-- Bucket tool fills areas with the current color (shortcut `G`).
+- Bucket tool fills areas with the current color (shortcut `G`), and the size slider controls its color tolerance.
 
 ## 📦 Installation
 
