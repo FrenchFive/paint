@@ -152,16 +152,45 @@ fileInput.addEventListener('change', e => {
         img.onload = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            saveState();
         };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
 });
 
-canvas.addEventListener('pointerdown', e => { startPaint(e); movePreview(e); });
+window.addEventListener('paste', e => {
+    const items = e.clipboardData.items;
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (!file) continue;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    saveState();
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+            break;
+        }
+    }
+});
+
+canvas.addEventListener('pointerdown', e => {
+    startPaint(e);
+    canvas.setPointerCapture(e.pointerId);
+    movePreview(e);
+});
 canvas.addEventListener('pointermove', e => { draw(e); movePreview(e); });
-canvas.addEventListener('pointerup', endPaint);
-canvas.addEventListener('pointerout', endPaint);
+canvas.addEventListener('pointerup', e => {
+    endPaint();
+    canvas.releasePointerCapture(e.pointerId);
+});
 window.addEventListener('resize', resizeCanvas);
 
 window.addEventListener('keydown', e => {

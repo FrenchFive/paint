@@ -13,6 +13,9 @@ Welcome to my Paint project!
 - Smooth brush rendering for better performance.
 - Clear Canvas button to start fresh anytime.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
+- Modern interface with improved toolbar styling.
+- Continue drawing even if the cursor leaves the canvas.
+- Paste images with `Ctrl + V` to fill the canvas.
 
 ## 📦 Installation
 
@@ -46,6 +49,7 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 |------------------|------------------------------------|
 | `Ctrl + Z`       | Undo the last action               |
 | `Ctrl + S`       | Save your artwork                  |
+| `Ctrl + V`       | Paste an image onto the canvas     |
 | `B`              | Select Brush Tool                  |
 | `E`              | Select Eraser Tool                 |
 
