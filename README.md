@@ -7,7 +7,7 @@ Welcome to my Paint project!
 <br> Whether you're a professional artist or just doodling for fun, this tool is for you!
 
 ## 🛠️ Features
-- Brush Tools: Choose the size to create your masterpiece! ✍️
+- Brush Tools: Choose the size to create your masterpiece! 🖌️
 - Brush defaults to the second size step for quick access.
 - Size slider uses 10 steps and the eraser defaults to twice the brush size.
 - Color Palette: Pick your favorite colors 🌈
@@ -31,6 +31,8 @@ Welcome to my Paint project!
 - Dark mode toggle button shows a moon in dark mode and a sun in light mode, remembering your choice.
 - Easy-to-edit color palette using CSS variables at the top of `style.css`.
 - Bucket tool fills areas with the current color (shortcut `G`), and the size slider controls its color tolerance.
+- Tool buttons use emojis, including 🖌️ for the brush, 🧽 for the eraser and 🪣 for the bucket.
+- Hold Shift and click to draw a straight line from your last brush point.
 
 ## 📦 Installation
 

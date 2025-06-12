@@ -45,6 +45,7 @@ let currentColor = colorPicker.value;
 let baseSize = parseInt(brushSize.value, 10);
 let lastPoint = null;
 let lastMidPoint = null;
+let lastStrokeEnd = null;
 let bgColor = "#ffffff";
 const undoStack = [];
 const redoStack = [];
@@ -137,6 +138,7 @@ function floodFill(ctx, x, y, color, tolerance = 0) {
     const diffStart = Math.abs(target.r - fill.r) + Math.abs(target.g - fill.g) + Math.abs(target.b - fill.b);
     if (diffStart <= tolerance && target.a === 255) return;
     const stack = [{ x, y }];
+    const mask = new Uint8Array(w * h);
     while (stack.length) {
         const { x: cx, y: cy } = stack.pop();
         let idx = (cy * w + cx) * 4;
@@ -148,12 +150,35 @@ function floodFill(ctx, x, y, color, tolerance = 0) {
         data[idx + 1] = fill.g;
         data[idx + 2] = fill.b;
         data[idx + 3] = 255;
+        mask[cy * w + cx] = 1;
         if (cx > 0) stack.push({ x: cx - 1, y: cy });
         if (cx < w - 1) stack.push({ x: cx + 1, y: cy });
         if (cy > 0) stack.push({ x: cx, y: cy - 1 });
         if (cy < h - 1) stack.push({ x: cx, y: cy + 1 });
     }
-    ctx.putImageData(img, 0, 0);
+
+    const expanded = new Uint8ClampedArray(data);
+    for (let cy = 0; cy < h; cy++) {
+        for (let cx = 0; cx < w; cx++) {
+            if (!mask[cy * w + cx]) continue;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = cx + dx;
+                    const ny = cy + dy;
+                    if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+                    const nidx = (ny * w + nx) * 4;
+                    if (data[nidx + 3] < 255) {
+                        expanded[nidx] = fill.r;
+                        expanded[nidx + 1] = fill.g;
+                        expanded[nidx + 2] = fill.b;
+                        expanded[nidx + 3] = 255;
+                    }
+                }
+            }
+        }
+    }
+
+    ctx.putImageData(new ImageData(expanded, w, h), 0, 0);
 }
 
 function getBucketTolerance() {
@@ -270,6 +295,19 @@ function drawImageFit(img) {
     saveState();
 }
 
+function drawLineSegment(start, end) {
+    const size = erasing ? baseSize * 2 : baseSize;
+    drawCtx.lineWidth = size;
+    drawCtx.lineCap = 'round';
+    drawCtx.lineJoin = 'round';
+    drawCtx.globalCompositeOperation = erasing ? 'destination-out' : 'source-over';
+    drawCtx.strokeStyle = erasing ? 'rgba(0,0,0,1)' : currentColor;
+    drawCtx.beginPath();
+    drawCtx.moveTo(start.x, start.y);
+    drawCtx.lineTo(end.x, end.y);
+    drawCtx.stroke();
+}
+
 function getPos(e) {
     const rect = drawCanvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
@@ -317,6 +355,7 @@ function endPaint() {
     drawCtx.moveTo(lastMidPoint.x, lastMidPoint.y);
     drawCtx.quadraticCurveTo(lastPoint.x, lastPoint.y, lastPoint.x, lastPoint.y);
     drawCtx.stroke();
+    lastStrokeEnd = lastPoint;
     saveState();
 }
 
@@ -471,6 +510,10 @@ drawCanvas.addEventListener('pointerdown', e => {
         floodFill(drawCtx, Math.floor(pos.x), Math.floor(pos.y), currentColor, getBucketTolerance());
         saveState();
     } else {
+        const pos = getPos(e);
+        if (e.shiftKey && lastStrokeEnd) {
+            drawLineSegment(lastStrokeEnd, pos);
+        }
         startPaint(e);
         drawCanvas.setPointerCapture(e.pointerId);
     }
