@@ -1,8 +1,32 @@
+:root {
+    --light-body-start: #f5f5f5;
+    --light-body-end: #d9d9d9;
+    --dark-body-start: #444444;
+    --dark-body-end: #222222;
+    --controls-light: #f0f0f0;
+    --controls-dark: #555555;
+    --canvas-light: #ffffff;
+    --canvas-dark: #333333;
+    --selected-light: #d3d3d3;
+    --selected-dark: #666666;
+    --selected-border: #000000;
+    --accent: #888888;
+    --button-hover-light: #e6e6e6;
+    --button-hover-dark: #555555;
+}
+
 html, body {
     margin: 0;
     padding: 0;
     height: 100%;
     overflow: hidden; /* Disable scroll bars */
+    font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(to bottom right, var(--light-body-start), var(--light-body-end));
+}
+
+body.dark {
+    background: linear-gradient(to bottom right, var(--dark-body-start), var(--dark-body-end));
+    color: #ffffff;
 }
 
 #main {
@@ -11,29 +35,153 @@ html, body {
     height: 100%;
 }
 
-#paintCanvas {
+#bgCanvas,
+#drawCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#drawCanvas {
     cursor: none; /* Hide the default cursor */
+}
+
+body.dark #bgCanvas {
+    background-color: var(--canvas-dark);
+}
+#bgCanvas {
+    background-color: var(--canvas-light);
 }
 
 #controls {
     display: flex;
     justify-content: space-around;
     padding: 10px;
-    background-color: #f0f0f0;
+    background-color: var(--controls-light);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark #controls {
+    background-color: var(--controls-dark);
+}
+
+#controls button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+body.dark #controls button {
+    background: #666;
+    border-color: #555;
+    color: #fff;
+}
+
+#controls button:hover {
+    background: var(--button-hover-light);
+}
+
+body.dark #controls button:hover {
+    background: var(--button-hover-dark);
+}
+
+#fileMenu button:hover {
+    background: var(--button-hover-light);
+}
+
+body.dark #fileMenu button:hover {
+    background: var(--button-hover-dark);
 }
 
 #canvasContainer {
     flex: 1;
     display: flex;
+    position: relative;
+    margin: 10px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    background: linear-gradient(to bottom right, var(--light-body-start), var(--light-body-end));
 }
 
-#paintCanvas, #previewCanvas {
-    flex: 1;
-    width: 100%;
-    height: 100%;
+body.dark #canvasContainer {
+    background-color: var(--canvas-dark);
+}
+
+.resize-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: 2px;
+    cursor: nwse-resize;
+}
+
+body.dark .resize-handle {
+    background: var(--accent);
+}
+
+.resize-handle.se {
+    right: 0;
+    bottom: 0;
+    transform: translate(50%, 50%);
+}
+
+.resize-handle.nw {
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+}
+
+#brushPreview {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #000;
+    box-shadow: 0 0 0 1px #fff;
+}
+
+body.dark #brushPreview {
+    border-color: #fff;
+    box-shadow: 0 0 0 1px #000;
 }
 
 #controls button.selected {
-    background-color: #d3d3d3; /* Light gray background for selected button */
-    border: 2px solid #000; /* Black border for selected button */
+    background-color: var(--selected-light);
+    border-color: var(--selected-border);
+}
+
+body.dark #controls button.selected {
+    background-color: var(--selected-dark);
+    border-color: var(--selected-border);
+}
+
+
+input[type="range"],
+input[type="checkbox"] {
+    accent-color: var(--accent);
+}
+
+#colorPicker {
+    -webkit-appearance: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+}
+#colorPicker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+#colorPicker::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
 }
