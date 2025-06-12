@@ -25,19 +25,20 @@ let currentColor = colorPicker.value;
 let currentSize = parseInt(brushSize.value, 10);
 let lastPoint = null;
 let lastMidPoint = null;
+let bgColor = "#ffffff";
 const undoStack = [];
 
 function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
         themeToggle.checked = true;
-        canvas.style.backgroundColor = '#333333';
+        canvas.style.backgroundColor = "#333333"; bgColor = "#333333";
         currentColor = '#ffffff';
         colorPicker.value = '#ffffff';
     } else {
         document.body.classList.remove('dark');
         themeToggle.checked = false;
-        canvas.style.backgroundColor = '#ffffff';
+        canvas.style.backgroundColor = "#ffffff"; bgColor = "#ffffff";
         currentColor = '#000000';
         colorPicker.value = '#000000';
     }
@@ -48,7 +49,7 @@ function applyTheme(isDark) {
 function updatePreview() {
     brushPreview.style.width = `${currentSize}px`;
     brushPreview.style.height = `${currentSize}px`;
-    brushPreview.style.background = erasing ? '#ffffff' : currentColor;
+    brushPreview.style.background = erasing ? bgColor : currentColor;
 }
 
 function movePreview(e) {
@@ -64,7 +65,11 @@ function resizeCanvas() {
     canvas.height = rect.height;
     const img = new Image();
     img.src = dataUrl;
-    img.onload = () => ctx.drawImage(img, 0, 0);
+    img.onload = () => {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+    };
 }
 
 function saveState() {
@@ -78,16 +83,31 @@ function undo() {
     img.src = lastState;
     img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
     };
 }
 
+function withBackground(callback) {
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+    const exportCtx = exportCanvas.getContext('2d');
+    exportCtx.fillStyle = bgColor;
+    exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    exportCtx.drawImage(canvas, 0, 0);
+    callback(exportCanvas);
+}
+
 function copyCanvas() {
     if (!navigator.clipboard || !window.ClipboardItem) return;
-    canvas.toBlob(blob => {
-        if (!blob) return;
-        const item = new ClipboardItem({ 'image/png': blob });
-        navigator.clipboard.write([item]);
+    withBackground(tmp => {
+        tmp.toBlob(blob => {
+            if (!blob) return;
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]);
+        });
     });
 }
 
@@ -96,6 +116,8 @@ function drawImageFit(img) {
     const w = img.width * scale;
     const h = img.height * scale;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, w, h);
     saveState();
 }
@@ -122,7 +144,7 @@ function draw(e) {
     ctx.lineWidth = currentSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = erasing ? '#ffffff' : currentColor;
+    ctx.strokeStyle = erasing ? bgColor : currentColor;
 
     ctx.beginPath();
     ctx.moveTo(lastMidPoint.x, lastMidPoint.y);
@@ -169,9 +191,11 @@ brushSize.addEventListener('input', e => {
 
 saveButton.addEventListener('click', () => {
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = 'canvas.png';
-    link.click();
+    withBackground(tmp => {
+        link.href = tmp.toDataURL('image/png');
+        link.download = 'canvas.png';
+        link.click();
+    });
 });
 
 importButton.addEventListener('click', () => fileInput.click());
@@ -184,6 +208,8 @@ themeToggle.addEventListener('change', e => {
 
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     saveState();
 });
 
@@ -251,8 +277,10 @@ window.addEventListener('keydown', e => {
     }
 });
 
+applyTheme(localStorage.getItem('darkMode') === 'true');
 resizeCanvas();
+ctx.fillStyle = bgColor;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 saveState();
 updatePreview();
-applyTheme(localStorage.getItem('darkMode') === 'true');
 

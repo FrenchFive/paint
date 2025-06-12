@@ -19,6 +19,7 @@ Welcome to my Paint project!
 - Copy your art to the clipboard with `Ctrl + C` or the Copy button.
 - Toggle Dark Mode with a persistent setting.
 - Imported or pasted images scale to fit while keeping their aspect ratio.
+- Exports and copied images include the current background color.
 
 ## 📦 Installation
 
