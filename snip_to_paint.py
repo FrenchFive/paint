@@ -1,44 +1,65 @@
 import os
 import sys
 import time
-import webbrowser
-import subprocess
 import shutil
+from pathlib import Path
+import subprocess
 
 from pynput import keyboard
 
-if os.name != 'posix':
-    print('snip_to_paint.py only works on Linux.')
-    sys.exit(1)
-
-if not shutil.which('gnome-screenshot'):
-    print('The gnome-screenshot utility is required.')
-    sys.exit(1)
-
-PAINT_FILE = os.path.abspath('index.html')
+PICTURES_DIR = Path.home() / 'Pictures'
 
 
-def paste_clipboard():
+def send_shift_print():
     ctrl = keyboard.Controller()
-    ctrl.press(keyboard.Key.ctrl)
-    ctrl.press('v')
-    ctrl.release('v')
-    ctrl.release(keyboard.Key.ctrl)
+    ctrl.press(keyboard.Key.shift)
+    ctrl.press(keyboard.Key.print_screen)
+    ctrl.release(keyboard.Key.print_screen)
+    ctrl.release(keyboard.Key.shift)
+
+
+def copy_image(path: Path) -> bool:
+    if shutil.which("xclip"):
+        subprocess.run(["xclip", "-selection", "clipboard", "-t", "image/png", "-i", str(path)], check=False)
+        return True
+    if shutil.which("wl-copy"):
+        with open(path, "rb") as f:
+            subprocess.run(["wl-copy"], stdin=f, check=False)
+        return True
+    print("xclip or wl-copy is required to copy images to the clipboard.")
+    return False
+
+
+def wait_for_new_image(before):
+    while True:
+        time.sleep(0.5)
+        files = list(PICTURES_DIR.glob('*'))
+        if not files:
+            continue
+        latest = max(files, key=lambda p: p.stat().st_mtime)
+        if latest not in before:
+            return latest
 
 
 def on_activate():
-    subprocess.run(['gnome-screenshot', '-a', '-c'])
-    url = 'file://' + PAINT_FILE.replace(os.sep, '/')
-    webbrowser.open_new_tab(url)
-    time.sleep(2)
-    paste_clipboard()
+    before = set(PICTURES_DIR.glob('*'))
+    send_shift_print()
+    screenshot = wait_for_new_image(before)
+    if copy_image(screenshot):
+        print(f'Copied {screenshot} to clipboard')
 
 
 def main():
-    print('Listening for Win+Shift+S...')
+    if os.name != 'posix':
+        print('This script works on Linux only.')
+        sys.exit(1)
+    if not PICTURES_DIR.exists():
+        print(f'{PICTURES_DIR} does not exist.')
+        sys.exit(1)
+    print("Listening for Win+Shift+S...")
     with keyboard.GlobalHotKeys({'<cmd>+<shift>+s': on_activate}) as h:
         h.join()
 
-
 if __name__ == '__main__':
     main()
+

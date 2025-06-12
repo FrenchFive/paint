@@ -82,7 +82,7 @@ Feel free to customize these shortcuts as needed!
 
 ## 🖼️ Snip to Paint
 
-`snip_to_paint.py` works on Linux. Press **Win+Shift+S** to start an area screenshot using `gnome-screenshot`. The captured image is copied to the clipboard, a new browser tab with the paint page opens, and the screenshot is pasted automatically.
+`snip_to_paint.py` listens for **Win+Shift+S** on Linux. When pressed, it simulates the standard **Shift+Print Screen** shortcut so you can drag to select an area. Once the screenshot is saved to your `~/Pictures` folder, it copies that file to the clipboard.
 
 ### Setup
 
@@ -96,12 +96,11 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
-The script depends on `pynput` and requires the `gnome-screenshot` utility to be available on your system.
+The script depends on `pynput`. Make sure either `xclip` or `wl-copy` is installed so the screenshot can be placed on the clipboard.
 
 ### Running
 
 ```bash
 python snip_to_paint.py
 ```
-
-Leave the script running in the background. After you select a screen area, a new browser tab opens with the paint app and the screenshot is pasted.
+Leave the script running in the background. After you select a screen area, the resulting file from your `~/Pictures` folder is copied to the clipboard so you can paste it wherever you need.
