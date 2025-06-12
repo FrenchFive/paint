@@ -8,7 +8,7 @@ html, body {
 }
 
 body.dark {
-    background: linear-gradient(to bottom right, #3a3a3a, #1c1c1c);
+    background: linear-gradient(to bottom right, #1e293b, #0f172a);
     color: #ffffff;
 }
 
@@ -33,7 +33,7 @@ body.dark {
 }
 
 body.dark #bgCanvas {
-    background-color: #333333;
+    background-color: #1e293b;
 }
 #bgCanvas {
     background-color: #ffffff;
@@ -86,26 +86,26 @@ body.dark #controls button:hover {
 }
 
 body.dark #canvasContainer {
-    background-color: #2a2a2a;
+    background-color: #1e293b;
 }
 
 .resize-handle {
     position: absolute;
     width: 12px;
     height: 12px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(168,85,247,0.8);
     border-radius: 2px;
     cursor: nwse-resize;
 }
 
 body.dark .resize-handle {
-    background: rgba(255,255,255,0.5);
+    background: rgba(199,210,254,0.8);
 }
 
-.resize-handle.ne {
+.resize-handle.se {
     right: 0;
-    top: 0;
-    transform: translate(50%, -50%);
+    bottom: 0;
+    transform: translate(50%, 50%);
 }
 
 .resize-handle.nw {
@@ -127,13 +127,13 @@ body.dark #brushPreview {
 }
 
 #controls button.selected {
-    background-color: #d0eaff;
-    border-color: #007acc;
+    background-color: #e9d5ff;
+    border-color: #a855f7;
 }
 
 body.dark #controls button.selected {
-    background-color: #005f99;
-    border-color: #3399ff;
+    background-color: #7e22ce;
+    border-color: #c084fc;
 }
 
 #themeToggleLabel {
@@ -146,4 +146,26 @@ body.dark #controls button.selected {
 
 body.dark #themeToggleLabel {
     color: #fff;
+}
+
+input[type="range"],
+input[type="checkbox"] {
+    accent-color: #a855f7;
+}
+
+#colorPicker {
+    -webkit-appearance: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    padding: 0;
+    cursor: pointer;
+}
+#colorPicker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+#colorPicker::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
 }

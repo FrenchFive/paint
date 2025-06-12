@@ -10,7 +10,7 @@ const newButton = document.getElementById('newButton');
 const fileMenuButton = document.getElementById('fileMenuButton');
 const fileMenu = document.getElementById('fileMenu');
 const handleNW = document.getElementById('handleNW');
-const handleNE = document.getElementById('handleNE');
+const handleSE = document.getElementById('handleSE');
 const brushPreview = document.getElementById('brushPreview');
 const themeToggle = document.getElementById('themeToggle');
 
@@ -48,7 +48,7 @@ function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
         themeToggle.checked = true;
-        bgCanvas.style.backgroundColor = "#333333"; bgColor = "#333333";
+        bgCanvas.style.backgroundColor = "#1e293b"; bgColor = "#1e293b";
         bgCtx.fillStyle = bgColor;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         currentColor = '#ffffff';
@@ -87,12 +87,11 @@ function maxCanvasSize() {
     };
 }
 
-function resizeCanvasTo(w, h) {
-    const snapshot = getSnapshot();
+function resizeCanvasTo(w, h, offsetX = 0, offsetY = 0, snapshot = getSnapshot()) {
     setCanvasSize(w, h);
     bgCtx.fillStyle = bgColor;
     bgCtx.fillRect(0, 0, w, h);
-    bgCtx.drawImage(snapshot, 0, 0);
+    bgCtx.drawImage(snapshot, offsetX, offsetY);
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
 }
 
@@ -216,7 +215,8 @@ function startResize(corner, e) {
         startX: e.clientX,
         startY: e.clientY,
         startW: bgCanvas.width,
-        startH: bgCanvas.height
+        startH: bgCanvas.height,
+        snapshot: getSnapshot()
     };
     document.addEventListener('pointermove', resizeMove);
     document.addEventListener('pointerup', stopResize);
@@ -224,21 +224,27 @@ function startResize(corner, e) {
 
 function resizeMove(e) {
     if (!resizing) return;
-    let dx = e.clientX - resizing.startX;
-    let dy = e.clientY - resizing.startY;
+    const dx = e.clientX - resizing.startX;
+    const dy = e.clientY - resizing.startY;
     let newW = resizing.startW;
     let newH = resizing.startH;
-    if (resizing.corner === 'ne') {
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (resizing.corner === 'se') {
         newW += dx;
-        newH -= dy;
+        newH += dy;
     } else {
         newW -= dx;
         newH -= dy;
+        offsetX = -dx;
+        offsetY = -dy;
     }
+
     const max = maxCanvasSize();
     newW = Math.max(50, Math.min(max.width, newW));
     newH = Math.max(50, Math.min(max.height, newH));
-    resizeCanvasTo(newW, newH);
+    resizeCanvasTo(newW, newH, offsetX, offsetY, resizing.snapshot);
 }
 
 function stopResize() {
@@ -349,7 +355,7 @@ document.addEventListener('click', e => {
     }
 });
 
-handleNE.addEventListener('pointerdown', e => startResize('ne', e));
+handleSE.addEventListener('pointerdown', e => startResize('se', e));
 handleNW.addEventListener('pointerdown', e => startResize('nw', e));
 
 window.addEventListener('keydown', e => {

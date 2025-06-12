@@ -21,9 +21,10 @@ Welcome to my Paint project!
 - Imported or pasted images scale to fit while keeping their aspect ratio.
 - Exports and copied images include the current background color.
 - Rounded canvas container resizes to match imported images.
-- Resize handles let you set custom canvas dimensions.
+- Resize handles in the top-left and bottom-right corners crop the canvas from those sides.
 - File dropdown groups Import, Export, Copy and New options.
 - Tailwind CSS styling for a modern look.
+- Subtle purple accent color throughout the UI.
 
 ## 📦 Installation
 
