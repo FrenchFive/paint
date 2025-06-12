@@ -82,7 +82,7 @@ Feel free to customize these shortcuts as needed!
 
 ## 🖼️ Snip to Paint
 
-The `snip_to_paint.py` script listens for the **Win+Shift+S** shortcut. When triggered it launches the Windows snipping UI, waits for an image to appear on the clipboard and then opens the paint page in your default browser. The captured image is automatically pasted onto the canvas.
+The `snip_to_paint.py` script listens for the **Win+Shift+S** shortcut. When triggered it launches the Windows snipping UI, waits for an image to appear on the clipboard, and then opens the paint page in your default browser. The captured image is automatically pasted onto the canvas.
 
 > **Note**
 > This helper only works on Windows where the `ms-screenclip:` protocol is available.
@@ -95,12 +95,11 @@ python -m venv venv
 source venv/bin/activate  # On Windows use venv\Scripts\activate
 ```
 
-2. Install the dependencies:
+2. Install the dependency:
 ```bash
 pip install -r requirements.txt
 ```
-
-This installs `pynput` and `Pillow`, which the helper uses for hotkey detection and clipboard access. No Tkinter setup is required.
+This installs `Pillow`, which the helper uses for clipboard access. Hotkey handling relies on built-in Windows APIs so no extra packages are required.
 
 ### Running
 
