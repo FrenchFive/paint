@@ -13,6 +13,7 @@ Welcome to my Paint project!
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Remove paint strokes without affecting imported images. ❌
 - Smooth brush rendering for better performance.
+- Undo and redo buttons with keyboard shortcuts (Ctrl+Z / Ctrl+Y).
 - "New" option clears the canvas (Ctrl+N) via the File menu.
 - Browser shortcut for Ctrl+N is overridden so it clears the canvas instead of opening a new window.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
@@ -61,9 +62,12 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 | Shortcut        | Action                             |
 |------------------|------------------------------------|
 | `Ctrl + Z`       | Undo the last action               |
+| `Ctrl + Y`       | Redo the last undone action        |
 | `Ctrl + S`       | Save your artwork                  |
 | `Ctrl + V`       | Paste an image onto the canvas     |
 | `Ctrl + C`       | Copy the canvas image to clipboard |
+| `Ctrl + N`       | Start a new canvas                 |
+| `Ctrl + (+/-)` or Wheel | Change brush/eraser size      |
 | `B`              | Select Brush Tool                  |
 | `E`              | Select Eraser Tool                 |
 

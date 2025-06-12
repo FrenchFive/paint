@@ -36,6 +36,7 @@ let lastPoint = null;
 let lastMidPoint = null;
 let bgColor = "#ffffff";
 const undoStack = [];
+const redoStack = [];
 let resizing = null;
 
 function setCanvasSize(w, h) {
@@ -76,6 +77,16 @@ function updatePreview() {
     brushPreview.style.background = erasing ? bgColor : currentColor;
 }
 
+function adjustBrushSize(delta) {
+    let newVal = parseInt(brushSize.value, 10) + delta;
+    const min = parseInt(brushSize.min, 10);
+    const max = parseInt(brushSize.max, 10);
+    newVal = Math.min(max, Math.max(min, newVal));
+    brushSize.value = newVal;
+    baseSize = newVal;
+    updatePreview();
+}
+
 function movePreview(e) {
     const rect = drawCanvas.getBoundingClientRect();
     brushPreview.style.left = `${e.clientX - rect.left}px`;
@@ -112,11 +123,10 @@ function saveState() {
         bg: bgCanvas.toDataURL(),
         draw: drawCanvas.toDataURL()
     });
+    redoStack.length = 0;
 }
 
-function undo() {
-    if (undoStack.length === 0) return;
-    const state = undoStack.pop();
+function applyState(state) {
     setCanvasSize(state.width, state.height);
     const bgImg = new Image();
     const drawImg = new Image();
@@ -132,6 +142,21 @@ function undo() {
     drawImg.onload = done;
     bgImg.src = state.bg;
     drawImg.src = state.draw;
+}
+
+function undo() {
+    if (undoStack.length <= 1) return;
+    const current = undoStack.pop();
+    redoStack.push(current);
+    const state = undoStack[undoStack.length - 1];
+    applyState(state);
+}
+
+function redo() {
+    if (redoStack.length === 0) return;
+    const state = redoStack.pop();
+    undoStack.push(state);
+    applyState(state);
 }
 
 function getSnapshot() {
@@ -403,10 +428,16 @@ document.addEventListener('click', e => {
 
 handleSE.addEventListener('pointerdown', e => startResize('se', e));
 handleNW.addEventListener('pointerdown', e => startResize('nw', e));
+document.getElementById('undoButton').addEventListener('click', undo);
+document.getElementById('redoButton').addEventListener('click', redo);
 
 window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
         undo();
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redo();
     } else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
         e.preventDefault();
         copyCanvas();
@@ -427,8 +458,22 @@ window.addEventListener('keydown', e => {
         e.preventDefault();
         e.stopPropagation();
         newButton.click();
+    } else if (e.ctrlKey && ['=', '+', 'Add'].includes(e.key)) {
+        e.preventDefault();
+        adjustBrushSize(parseInt(brushSize.step, 10));
+    } else if (e.ctrlKey && ['-', '_', 'Subtract'].includes(e.key)) {
+        e.preventDefault();
+        adjustBrushSize(-parseInt(brushSize.step, 10));
     }
 }, true);
+
+window.addEventListener('wheel', e => {
+    if (e.ctrlKey) {
+        e.preventDefault();
+        const delta = e.deltaY > 0 ? -1 : 1;
+        adjustBrushSize(delta * parseInt(brushSize.step, 10));
+    }
+}, { passive: false });
 
 applyTheme(localStorage.getItem('darkMode') === 'true');
 resizeCanvas();
