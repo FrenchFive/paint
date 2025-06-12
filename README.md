@@ -11,7 +11,7 @@ Welcome to my Paint project!
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Remove paint strokes without affecting imported images. ❌
 - Smooth brush rendering for better performance.
-- Clear Canvas button to start fresh anytime.
+- "New" option clears the canvas (Ctrl+N) via the File menu.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
 - Modern interface with improved toolbar styling.
 - Continue drawing even if the cursor leaves the canvas.
@@ -21,6 +21,9 @@ Welcome to my Paint project!
 - Imported or pasted images scale to fit while keeping their aspect ratio.
 - Exports and copied images include the current background color.
 - Rounded canvas container resizes to match imported images.
+- Resize handles let you set custom canvas dimensions.
+- File dropdown groups Import, Export, Copy and New options.
+- Tailwind CSS styling for a modern look.
 
 ## 📦 Installation
 

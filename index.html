@@ -5,24 +5,32 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
     <div id="main">
-        <div id="controls">
-            <button id="paintButton" class="selected">Paint</button>
-            <button id="eraserButton">Eraser</button>
-            <input type="color" id="colorPicker" value="#000000">
-            <input type="range" id="brushSize" min="1" max="50" value="5">
-            <button id="importButton">Import</button>
-            <button id="saveButton">Export</button>
-            <button id="copyButton">Copy</button>
-            <button id="clearButton">Clear</button>
-            <label id="themeToggleLabel"><input type="checkbox" id="themeToggle"> Dark Mode</label>
+        <div id="controls" class="flex items-center gap-2 p-2 bg-gray-100 dark:bg-gray-700 shadow">
+            <div class="relative" id="fileMenuWrapper">
+                <button id="fileMenuButton" class="px-3 py-1 bg-white dark:bg-gray-600 rounded border border-gray-300 dark:border-gray-500">File &#x25BE;</button>
+                <div id="fileMenu" class="hidden absolute left-0 mt-1 w-32 bg-white dark:bg-gray-600 rounded shadow z-10">
+                    <button id="importButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Import</button>
+                    <button id="saveButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Export</button>
+                    <button id="copyButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">Copy</button>
+                    <button id="newButton" class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-500">New</button>
+                </div>
+            </div>
+            <button id="paintButton" class="selected px-3 py-1 rounded border">Paint</button>
+            <button id="eraserButton" class="px-3 py-1 rounded border">Eraser</button>
+            <input type="color" id="colorPicker" value="#000000" class="h-8 w-8 p-0 border rounded">
+            <input type="range" id="brushSize" min="1" max="50" value="5" class="w-32">
+            <label id="themeToggleLabel" class="flex items-center gap-1 text-sm"><input type="checkbox" id="themeToggle"> Dark Mode</label>
         </div>
         <div id="canvasContainer">
             <canvas id="bgCanvas"></canvas>
             <canvas id="drawCanvas"></canvas>
             <div id="brushPreview"></div>
+            <div id="handleNW" class="resize-handle nw"></div>
+            <div id="handleNE" class="resize-handle ne"></div>
         </div>
     </div>
     <script src="script.js"></script>

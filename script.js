@@ -6,7 +6,11 @@ const brushSize = document.getElementById('brushSize');
 const saveButton = document.getElementById('saveButton');
 const importButton = document.getElementById('importButton');
 const copyButton = document.getElementById('copyButton');
-const clearButton = document.getElementById('clearButton');
+const newButton = document.getElementById('newButton');
+const fileMenuButton = document.getElementById('fileMenuButton');
+const fileMenu = document.getElementById('fileMenu');
+const handleNW = document.getElementById('handleNW');
+const handleNE = document.getElementById('handleNE');
 const brushPreview = document.getElementById('brushPreview');
 const themeToggle = document.getElementById('themeToggle');
 
@@ -29,6 +33,7 @@ let lastPoint = null;
 let lastMidPoint = null;
 let bgColor = "#ffffff";
 const undoStack = [];
+let resizing = null;
 
 function setCanvasSize(w, h) {
     const container = bgCanvas.parentElement;
@@ -73,19 +78,28 @@ function movePreview(e) {
     brushPreview.style.top = `${e.clientY - rect.top}px`;
 }
 
-function resizeCanvas() {
-    const snapshot = getSnapshot().toDataURL();
-    const rect = bgCanvas.parentElement.getBoundingClientRect();
-    bgCanvas.width = drawCanvas.width = rect.width;
-    bgCanvas.height = drawCanvas.height = rect.height;
-    const img = new Image();
-    img.src = snapshot;
-    img.onload = () => {
-        bgCtx.fillStyle = bgColor;
-        bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-        bgCtx.drawImage(img, 0, 0);
-        drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+function maxCanvasSize() {
+    const margin = 20;
+    const controlsHeight = document.getElementById('controls').offsetHeight;
+    return {
+        width: window.innerWidth - margin,
+        height: window.innerHeight - controlsHeight - margin
     };
+}
+
+function resizeCanvasTo(w, h) {
+    const snapshot = getSnapshot();
+    setCanvasSize(w, h);
+    bgCtx.fillStyle = bgColor;
+    bgCtx.fillRect(0, 0, w, h);
+    bgCtx.drawImage(snapshot, 0, 0);
+    drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+}
+
+function resizeCanvas() {
+    const { width, height } = maxCanvasSize();
+    resizeCanvasTo(width, height);
+    saveState();
 }
 
 function saveState() {
@@ -195,6 +209,46 @@ function endPaint() {
     saveState();
 }
 
+function startResize(corner, e) {
+    e.preventDefault();
+    resizing = {
+        corner,
+        startX: e.clientX,
+        startY: e.clientY,
+        startW: bgCanvas.width,
+        startH: bgCanvas.height
+    };
+    document.addEventListener('pointermove', resizeMove);
+    document.addEventListener('pointerup', stopResize);
+}
+
+function resizeMove(e) {
+    if (!resizing) return;
+    let dx = e.clientX - resizing.startX;
+    let dy = e.clientY - resizing.startY;
+    let newW = resizing.startW;
+    let newH = resizing.startH;
+    if (resizing.corner === 'ne') {
+        newW += dx;
+        newH -= dy;
+    } else {
+        newW -= dx;
+        newH -= dy;
+    }
+    const max = maxCanvasSize();
+    newW = Math.max(50, Math.min(max.width, newW));
+    newH = Math.max(50, Math.min(max.height, newH));
+    resizeCanvasTo(newW, newH);
+}
+
+function stopResize() {
+    if (!resizing) return;
+    document.removeEventListener('pointermove', resizeMove);
+    document.removeEventListener('pointerup', stopResize);
+    resizing = null;
+    saveState();
+}
+
 paintButton.addEventListener('click', () => {
     erasing = false;
     paintButton.classList.add('selected');
@@ -236,7 +290,7 @@ themeToggle.addEventListener('change', e => {
     applyTheme(e.target.checked);
 });
 
-clearButton.addEventListener('click', () => {
+newButton.addEventListener('click', () => {
     bgCtx.fillStyle = bgColor;
     bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
@@ -285,6 +339,19 @@ drawCanvas.addEventListener('pointerup', e => {
 });
 window.addEventListener('resize', resizeCanvas);
 
+fileMenuButton.addEventListener('click', () => {
+    fileMenu.classList.toggle('hidden');
+});
+
+document.addEventListener('click', e => {
+    if (!fileMenu.contains(e.target) && e.target !== fileMenuButton) {
+        fileMenu.classList.add('hidden');
+    }
+});
+
+handleNE.addEventListener('pointerdown', e => startResize('ne', e));
+handleNW.addEventListener('pointerdown', e => startResize('nw', e));
+
 window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key.toLowerCase() === 'z') {
         undo();
@@ -304,6 +371,9 @@ window.addEventListener('keydown', e => {
         eraserButton.classList.add('selected');
         paintButton.classList.remove('selected');
         updatePreview();
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        newButton.click();
     }
 });
 
