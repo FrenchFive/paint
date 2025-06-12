@@ -1,64 +1,43 @@
 import os
 import sys
-import subprocess
 import time
 import webbrowser
-import ctypes
-from ctypes import wintypes
+import subprocess
+import shutil
 
-from PIL import ImageGrab
+from pynput import keyboard
 
-if os.name != 'nt':
-    print('snip_to_paint.py only works on Windows.')
+if os.name != 'posix':
+    print('snip_to_paint.py only works on Linux.')
+    sys.exit(1)
+
+if not shutil.which('gnome-screenshot'):
+    print('The gnome-screenshot utility is required.')
     sys.exit(1)
 
 PAINT_FILE = os.path.abspath('index.html')
 
-user32 = ctypes.windll.user32
 
-HOTKEY_ID = 1
-MOD_WIN = 0x0008
-MOD_SHIFT = 0x0004
-VK_S = 0x53
-WM_HOTKEY = 0x0312
-
-
-def send_ctrl_v():
-    user32.keybd_event(0x11, 0, 0, 0)  # Ctrl down
-    user32.keybd_event(0x56, 0, 0, 0)  # V down
-    user32.keybd_event(0x56, 0, 2, 0)  # V up
-    user32.keybd_event(0x11, 0, 2, 0)  # Ctrl up
+def paste_clipboard():
+    ctrl = keyboard.Controller()
+    ctrl.press(keyboard.Key.ctrl)
+    ctrl.press('v')
+    ctrl.release('v')
+    ctrl.release(keyboard.Key.ctrl)
 
 
-def wait_for_clipboard_image(timeout=10):
-    start = time.time()
-    while time.time() - start < timeout:
-        if ImageGrab.grabclipboard() is not None:
-            return True
-        time.sleep(0.2)
-    return False
-
-
-def open_paint_and_paste():
+def on_activate():
+    subprocess.run(['gnome-screenshot', '-a', '-c'])
     url = 'file://' + PAINT_FILE.replace(os.sep, '/')
     webbrowser.open_new_tab(url)
     time.sleep(2)
-    send_ctrl_v()
+    paste_clipboard()
 
 
 def main():
-    if not user32.RegisterHotKey(None, HOTKEY_ID, MOD_WIN | MOD_SHIFT, VK_S):
-        print('Unable to register hotkey. Try running as administrator.')
-        return
-    try:
-        msg = wintypes.MSG()
-        while user32.GetMessageW(ctypes.byref(msg), None, 0, 0) != 0:
-            if msg.message == WM_HOTKEY and msg.wParam == HOTKEY_ID:
-                subprocess.Popen(['explorer', 'ms-screenclip:'])
-                if wait_for_clipboard_image():
-                    open_paint_and_paste()
-    finally:
-        user32.UnregisterHotKey(None, HOTKEY_ID)
+    print('Listening for Win+Shift+S...')
+    with keyboard.GlobalHotKeys({'<cmd>+<shift>+s': on_activate}) as h:
+        h.join()
 
 
 if __name__ == '__main__':
