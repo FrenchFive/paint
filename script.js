@@ -14,6 +14,9 @@ const handleSE = document.getElementById('handleSE');
 const brushPreview = document.getElementById('brushPreview');
 const themeToggle = document.getElementById('themeToggle');
 
+const lightBg = '#ffffff';
+const darkBg = '#333333';
+
 const fileInput = document.createElement('input');
 fileInput.type = 'file';
 fileInput.accept = 'image/*';
@@ -47,16 +50,16 @@ function setCanvasSize(w, h) {
 function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
-        themeToggle.checked = true;
-        bgCanvas.style.backgroundColor = "#1e293b"; bgColor = "#1e293b";
+        themeToggle.textContent = '☀️';
+        bgCanvas.style.backgroundColor = darkBg; bgColor = darkBg;
         bgCtx.fillStyle = bgColor;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         currentColor = '#ffffff';
         colorPicker.value = '#ffffff';
     } else {
         document.body.classList.remove('dark');
-        themeToggle.checked = false;
-        bgCanvas.style.backgroundColor = "#ffffff"; bgColor = "#ffffff";
+        themeToggle.textContent = '🌙';
+        bgCanvas.style.backgroundColor = lightBg; bgColor = lightBg;
         bgCtx.fillStyle = bgColor;
         bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         currentColor = '#000000';
@@ -251,6 +254,9 @@ function stopResize() {
     if (!resizing) return;
     document.removeEventListener('pointermove', resizeMove);
     document.removeEventListener('pointerup', stopResize);
+    const container = bgCanvas.parentElement;
+    container.style.marginTop = '10px';
+    container.style.marginLeft = '10px';
     resizing = null;
     saveState();
 }
@@ -292,8 +298,9 @@ importButton.addEventListener('click', () => fileInput.click());
 
 copyButton.addEventListener('click', copyCanvas);
 
-themeToggle.addEventListener('change', e => {
-    applyTheme(e.target.checked);
+themeToggle.addEventListener('click', () => {
+    const isDark = !document.body.classList.contains('dark');
+    applyTheme(isDark);
 });
 
 newButton.addEventListener('click', () => {

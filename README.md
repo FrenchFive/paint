@@ -24,7 +24,8 @@ Welcome to my Paint project!
 - Resize handles in the top-left and bottom-right corners crop the canvas from those sides.
 - File dropdown groups Import, Export, Copy and New options.
 - Tailwind CSS styling for a modern look.
-- Subtle purple accent color throughout the UI.
+- Dark mode toggle button shows a sun or moon icon and remembers your choice.
+- Easy-to-edit color palette using CSS variables at the top of `style.css`.
 
 ## 📦 Installation
 
