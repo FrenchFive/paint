@@ -5,8 +5,10 @@ const colorPicker = document.getElementById('colorPicker');
 const brushSize = document.getElementById('brushSize');
 const saveButton = document.getElementById('saveButton');
 const importButton = document.getElementById('importButton');
+const copyButton = document.getElementById('copyButton');
 const clearButton = document.getElementById('clearButton');
 const brushPreview = document.getElementById('brushPreview');
+const themeToggle = document.getElementById('themeToggle');
 
 const fileInput = document.createElement('input');
 fileInput.type = 'file';
@@ -24,6 +26,24 @@ let currentSize = parseInt(brushSize.value, 10);
 let lastPoint = null;
 let lastMidPoint = null;
 const undoStack = [];
+
+function applyTheme(isDark) {
+    if (isDark) {
+        document.body.classList.add('dark');
+        themeToggle.checked = true;
+        canvas.style.backgroundColor = '#333333';
+        currentColor = '#ffffff';
+        colorPicker.value = '#ffffff';
+    } else {
+        document.body.classList.remove('dark');
+        themeToggle.checked = false;
+        canvas.style.backgroundColor = '#ffffff';
+        currentColor = '#000000';
+        colorPicker.value = '#000000';
+    }
+    updatePreview();
+    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+}
 
 function updatePreview() {
     brushPreview.style.width = `${currentSize}px`;
@@ -60,6 +80,24 @@ function undo() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0);
     };
+}
+
+function copyCanvas() {
+    if (!navigator.clipboard || !window.ClipboardItem) return;
+    canvas.toBlob(blob => {
+        if (!blob) return;
+        const item = new ClipboardItem({ 'image/png': blob });
+        navigator.clipboard.write([item]);
+    });
+}
+
+function drawImageFit(img) {
+    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+    const w = img.width * scale;
+    const h = img.height * scale;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, w, h);
+    saveState();
 }
 
 function getPos(e) {
@@ -138,6 +176,12 @@ saveButton.addEventListener('click', () => {
 
 importButton.addEventListener('click', () => fileInput.click());
 
+copyButton.addEventListener('click', copyCanvas);
+
+themeToggle.addEventListener('change', e => {
+    applyTheme(e.target.checked);
+});
+
 clearButton.addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     saveState();
@@ -149,11 +193,7 @@ fileInput.addEventListener('change', e => {
     const reader = new FileReader();
     reader.onload = event => {
         const img = new Image();
-        img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            saveState();
-        };
+        img.onload = () => drawImageFit(img);
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
@@ -168,11 +208,7 @@ window.addEventListener('paste', e => {
             const reader = new FileReader();
             reader.onload = ev => {
                 const img = new Image();
-                img.onload = () => {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    saveState();
-                };
+                img.onload = () => drawImageFit(img);
                 img.src = ev.target.result;
             };
             reader.readAsDataURL(file);
@@ -196,6 +232,9 @@ window.addEventListener('resize', resizeCanvas);
 window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.key.toLowerCase() === 'z') {
         undo();
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        copyCanvas();
     } else if (e.key.toLowerCase() === 's') {
         e.preventDefault();
         saveButton.click();
@@ -215,4 +254,5 @@ window.addEventListener('keydown', e => {
 resizeCanvas();
 saveState();
 updatePreview();
+applyTheme(localStorage.getItem('darkMode') === 'true');
 

@@ -7,6 +7,11 @@ html, body {
     background: linear-gradient(to bottom right, #ffffff, #e6e6e6);
 }
 
+body.dark {
+    background: linear-gradient(to bottom right, #3a3a3a, #1c1c1c);
+    color: #ffffff;
+}
+
 #main {
     display: flex;
     flex-direction: column;
@@ -18,6 +23,11 @@ html, body {
     width: 100%;
     height: 100%;
     display: block;
+    background-color: #ffffff;
+}
+
+body.dark #paintCanvas {
+    background-color: #333333;
 }
 
 #controls {
@@ -26,6 +36,10 @@ html, body {
     padding: 10px;
     background-color: #f0f0f0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.dark #controls {
+    background-color: #444444;
 }
 
 #controls button {
@@ -37,8 +51,18 @@ html, body {
     transition: background 0.2s;
 }
 
+body.dark #controls button {
+    background: #666;
+    border-color: #555;
+    color: #fff;
+}
+
 #controls button:hover {
     background: #e6e6e6;
+}
+
+body.dark #controls button:hover {
+    background: #555;
 }
 
 #canvasContainer {
@@ -58,7 +82,28 @@ html, body {
     border: 1px solid #000;
 }
 
+body.dark #brushPreview {
+    border-color: #fff;
+}
+
 #controls button.selected {
     background-color: #d0eaff;
     border-color: #007acc;
+}
+
+body.dark #controls button.selected {
+    background-color: #005f99;
+    border-color: #3399ff;
+}
+
+#themeToggleLabel {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    user-select: none;
+}
+
+body.dark #themeToggleLabel {
+    color: #fff;
 }

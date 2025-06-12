@@ -16,6 +16,9 @@ Welcome to my Paint project!
 - Modern interface with improved toolbar styling.
 - Continue drawing even if the cursor leaves the canvas.
 - Paste images with `Ctrl + V` to fill the canvas.
+- Copy your art to the clipboard with `Ctrl + C` or the Copy button.
+- Toggle Dark Mode with a persistent setting.
+- Imported or pasted images scale to fit while keeping their aspect ratio.
 
 ## 📦 Installation
 
@@ -50,6 +53,7 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 | `Ctrl + Z`       | Undo the last action               |
 | `Ctrl + S`       | Save your artwork                  |
 | `Ctrl + V`       | Paste an image onto the canvas     |
+| `Ctrl + C`       | Copy the canvas image to clipboard |
 | `B`              | Select Brush Tool                  |
 | `E`              | Select Eraser Tool                 |
 
