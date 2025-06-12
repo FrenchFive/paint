@@ -20,6 +20,7 @@ Welcome to my Paint project!
 - Toggle Dark Mode with a persistent setting.
 - Imported or pasted images scale to fit while keeping their aspect ratio.
 - Exports and copied images include the current background color.
+- Rounded canvas container resizes to match imported images.
 
 ## 📦 Installation
 

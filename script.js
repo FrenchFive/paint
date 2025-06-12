@@ -30,6 +30,15 @@ let lastMidPoint = null;
 let bgColor = "#ffffff";
 const undoStack = [];
 
+function setCanvasSize(w, h) {
+    const container = bgCanvas.parentElement;
+    container.style.flex = 'none';
+    container.style.width = `${w}px`;
+    container.style.height = `${h}px`;
+    bgCanvas.width = drawCanvas.width = w;
+    bgCanvas.height = drawCanvas.height = h;
+}
+
 function applyTheme(isDark) {
     if (isDark) {
         document.body.classList.add('dark');
@@ -124,13 +133,16 @@ function copyCanvas() {
 }
 
 function drawImageFit(img) {
-    const scale = Math.min(bgCanvas.width / img.width, bgCanvas.height / img.height);
-    const w = img.width * scale;
-    const h = img.height * scale;
-    bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+    const container = bgCanvas.parentElement;
+    const rect = container.getBoundingClientRect();
+    const scale = Math.min(rect.width / img.width, rect.height / img.height);
+    const w = Math.round(img.width * scale);
+    const h = Math.round(img.height * scale);
+    setCanvasSize(w, h);
     bgCtx.fillStyle = bgColor;
-    bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+    bgCtx.fillRect(0, 0, w, h);
     bgCtx.drawImage(img, 0, 0, w, h);
+    drawCtx.clearRect(0, 0, w, h);
     saveState();
 }
 
