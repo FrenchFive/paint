@@ -3,14 +3,14 @@ A Web Browser Paint Tool
 
 ## 🎨 Paint Project
 Welcome to my Paint project! 
-<br> This application allows users to poorly paint their creativity by doodling in their browser. 
+<br> This application lets users express their creativity by doodling directly in the browser.
 <br> Whether you're a professional artist or just doodling for fun, this tool is for you!
 
 ## 🛠️ Features
 - Brush Tools: Choose the size to create your masterpiece! ✍️
 - Color Palette: Pick your favorite colors 🌈
 - Eraser Tool: Easily erase any mistakes or unwanted lines. ❌
-- Ctrl + Z : Undo doenst work all the time.
+- Smooth brush rendering for better performance.
 - Save Your Artwork: Download your creations as images to share with friends. 💾
 
 ## 📦 Installation
@@ -49,3 +49,4 @@ Here are some handy keyboard shortcuts to enhance your painting experience:
 | `E`              | Select Eraser Tool                 |
 
 Feel free to customize these shortcuts as needed!
+

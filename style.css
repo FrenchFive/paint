@@ -13,6 +13,9 @@ html, body {
 
 #paintCanvas {
     cursor: none; /* Hide the default cursor */
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
 #controls {
@@ -25,12 +28,18 @@ html, body {
 #canvasContainer {
     flex: 1;
     display: flex;
+    position: relative;
+}
+#paintCanvas {
+    flex: 1;
 }
 
-#paintCanvas, #previewCanvas {
-    flex: 1;
-    width: 100%;
-    height: 100%;
+#brushPreview {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid #000;
 }
 
 #controls button.selected {
